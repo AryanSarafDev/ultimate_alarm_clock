@@ -172,48 +172,53 @@ const AlarmModelSchema = CollectionSchema(
       name: r'ownerName',
       type: IsarType.string,
     ),
-    r'qrValue': PropertySchema(
+    r'profile': PropertySchema(
       id: 31,
+      name: r'profile',
+      type: IsarType.long,
+    ),
+    r'qrValue': PropertySchema(
+      id: 32,
       name: r'qrValue',
       type: IsarType.string,
     ),
     r'ringtoneName': PropertySchema(
-      id: 32,
+      id: 33,
       name: r'ringtoneName',
       type: IsarType.string,
     ),
     r'shakeTimes': PropertySchema(
-      id: 33,
+      id: 34,
       name: r'shakeTimes',
       type: IsarType.long,
     ),
     r'sharedUserIds': PropertySchema(
-      id: 34,
+      id: 35,
       name: r'sharedUserIds',
       type: IsarType.stringList,
     ),
     r'showMotivationalQuote': PropertySchema(
-      id: 35,
+      id: 36,
       name: r'showMotivationalQuote',
       type: IsarType.bool,
     ),
     r'snoozeDuration': PropertySchema(
-      id: 36,
+      id: 37,
       name: r'snoozeDuration',
       type: IsarType.long,
     ),
     r'volMax': PropertySchema(
-      id: 37,
+      id: 38,
       name: r'volMax',
       type: IsarType.double,
     ),
     r'volMin': PropertySchema(
-      id: 38,
+      id: 39,
       name: r'volMin',
       type: IsarType.double,
     ),
     r'weatherTypes': PropertySchema(
-      id: 39,
+      id: 40,
       name: r'weatherTypes',
       type: IsarType.longList,
     )
@@ -314,15 +319,16 @@ void _alarmModelSerialize(
   writer.writeLong(offsets[28], object.numberOfSteps);
   writer.writeString(offsets[29], object.ownerId);
   writer.writeString(offsets[30], object.ownerName);
-  writer.writeString(offsets[31], object.qrValue);
-  writer.writeString(offsets[32], object.ringtoneName);
-  writer.writeLong(offsets[33], object.shakeTimes);
-  writer.writeStringList(offsets[34], object.sharedUserIds);
-  writer.writeBool(offsets[35], object.showMotivationalQuote);
-  writer.writeLong(offsets[36], object.snoozeDuration);
-  writer.writeDouble(offsets[37], object.volMax);
-  writer.writeDouble(offsets[38], object.volMin);
-  writer.writeLongList(offsets[39], object.weatherTypes);
+  writer.writeLong(offsets[31], object.profile);
+  writer.writeString(offsets[32], object.qrValue);
+  writer.writeString(offsets[33], object.ringtoneName);
+  writer.writeLong(offsets[34], object.shakeTimes);
+  writer.writeStringList(offsets[35], object.sharedUserIds);
+  writer.writeBool(offsets[36], object.showMotivationalQuote);
+  writer.writeLong(offsets[37], object.snoozeDuration);
+  writer.writeDouble(offsets[38], object.volMax);
+  writer.writeDouble(offsets[39], object.volMin);
+  writer.writeLongList(offsets[40], object.weatherTypes);
 }
 
 AlarmModel _alarmModelDeserialize(
@@ -362,15 +368,16 @@ AlarmModel _alarmModelDeserialize(
     numberOfSteps: reader.readLong(offsets[28]),
     ownerId: reader.readString(offsets[29]),
     ownerName: reader.readString(offsets[30]),
-    qrValue: reader.readString(offsets[31]),
-    ringtoneName: reader.readString(offsets[32]),
-    shakeTimes: reader.readLong(offsets[33]),
-    sharedUserIds: reader.readStringList(offsets[34]),
-    showMotivationalQuote: reader.readBool(offsets[35]),
-    snoozeDuration: reader.readLong(offsets[36]),
-    volMax: reader.readDouble(offsets[37]),
-    volMin: reader.readDouble(offsets[38]),
-    weatherTypes: reader.readLongList(offsets[39]) ?? [],
+    profile: reader.readLong(offsets[31]),
+    qrValue: reader.readString(offsets[32]),
+    ringtoneName: reader.readString(offsets[33]),
+    shakeTimes: reader.readLong(offsets[34]),
+    sharedUserIds: reader.readStringList(offsets[35]),
+    showMotivationalQuote: reader.readBool(offsets[36]),
+    snoozeDuration: reader.readLong(offsets[37]),
+    volMax: reader.readDouble(offsets[38]),
+    volMin: reader.readDouble(offsets[39]),
+    weatherTypes: reader.readLongList(offsets[40]) ?? [],
   );
   object.firestoreId = reader.readStringOrNull(offsets[5]);
   object.isarId = id;
@@ -447,22 +454,24 @@ P _alarmModelDeserializeProp<P>(
     case 30:
       return (reader.readString(offset)) as P;
     case 31:
-      return (reader.readString(offset)) as P;
+      return (reader.readLong(offset)) as P;
     case 32:
       return (reader.readString(offset)) as P;
     case 33:
-      return (reader.readLong(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 34:
-      return (reader.readStringList(offset)) as P;
-    case 35:
-      return (reader.readBool(offset)) as P;
-    case 36:
       return (reader.readLong(offset)) as P;
+    case 35:
+      return (reader.readStringList(offset)) as P;
+    case 36:
+      return (reader.readBool(offset)) as P;
     case 37:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readLong(offset)) as P;
     case 38:
       return (reader.readDouble(offset)) as P;
     case 39:
+      return (reader.readDouble(offset)) as P;
+    case 40:
       return (reader.readLongList(offset) ?? []) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -2604,6 +2613,60 @@ extension AlarmModelQueryFilter
     });
   }
 
+  QueryBuilder<AlarmModel, AlarmModel, QAfterFilterCondition> profileEqualTo(
+      int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'profile',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<AlarmModel, AlarmModel, QAfterFilterCondition>
+      profileGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'profile',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<AlarmModel, AlarmModel, QAfterFilterCondition> profileLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'profile',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<AlarmModel, AlarmModel, QAfterFilterCondition> profileBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'profile',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
   QueryBuilder<AlarmModel, AlarmModel, QAfterFilterCondition> qrValueEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -3892,6 +3955,18 @@ extension AlarmModelQuerySortBy
     });
   }
 
+  QueryBuilder<AlarmModel, AlarmModel, QAfterSortBy> sortByProfile() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'profile', Sort.asc);
+    });
+  }
+
+  QueryBuilder<AlarmModel, AlarmModel, QAfterSortBy> sortByProfileDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'profile', Sort.desc);
+    });
+  }
+
   QueryBuilder<AlarmModel, AlarmModel, QAfterSortBy> sortByQrValue() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'qrValue', Sort.asc);
@@ -4372,6 +4447,18 @@ extension AlarmModelQuerySortThenBy
     });
   }
 
+  QueryBuilder<AlarmModel, AlarmModel, QAfterSortBy> thenByProfile() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'profile', Sort.asc);
+    });
+  }
+
+  QueryBuilder<AlarmModel, AlarmModel, QAfterSortBy> thenByProfileDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'profile', Sort.desc);
+    });
+  }
+
   QueryBuilder<AlarmModel, AlarmModel, QAfterSortBy> thenByQrValue() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'qrValue', Sort.asc);
@@ -4667,6 +4754,12 @@ extension AlarmModelQueryWhereDistinct
     });
   }
 
+  QueryBuilder<AlarmModel, AlarmModel, QDistinct> distinctByProfile() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'profile');
+    });
+  }
+
   QueryBuilder<AlarmModel, AlarmModel, QDistinct> distinctByQrValue(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -4921,6 +5014,12 @@ extension AlarmModelQueryProperty
   QueryBuilder<AlarmModel, String, QQueryOperations> ownerNameProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'ownerName');
+    });
+  }
+
+  QueryBuilder<AlarmModel, int, QQueryOperations> profileProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'profile');
     });
   }
 

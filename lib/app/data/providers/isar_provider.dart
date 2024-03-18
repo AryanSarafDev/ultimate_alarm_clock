@@ -5,6 +5,8 @@ import 'package:ultimate_alarm_clock/app/data/models/alarm_model.dart';
 import 'package:ultimate_alarm_clock/app/data/models/ringtone_model.dart';
 import 'package:ultimate_alarm_clock/app/utils/utils.dart';
 
+import '../models/alarm_profile_model.dart';
+
 class IsarDb {
   static final IsarDb _instance = IsarDb._internal();
   late Future<Isar> db;
@@ -36,6 +38,41 @@ class IsarDb {
       await db.alarmModels.put(alarmRecord);
     });
     return alarmRecord;
+  }
+
+  // get alarm profile from id
+  static Future<Id> getProfileId(String name) async {
+    final isarProvider = IsarDb();
+    final db = await isarProvider.db;
+    final profileId = await db.alarmProfileModels
+        .where()
+        .filter()
+        .profileNameEqualTo(name)
+        .findAll();
+    return profileId[0].isarId;
+  }
+
+  // add a new alarm profile
+  static addProfile(String profileName) async {
+    final newUser = AlarmProfileModel(profileName: profileName);
+    final isarProvider = IsarDb();
+    final db = await isarProvider.db;
+    db.alarmProfileModels.put(newUser);
+  }
+
+  // get list of alarm profiles available
+  static Future<List<AlarmProfileModel?>> getAlarmProfiles() async {
+    final isarProvider = IsarDb();
+    final db = await isarProvider.db;
+    final profiles = await db.alarmProfileModels.where().findAll();
+    return profiles;
+  }
+
+  // delete alarm profile
+  static deleteAlarmProfile(int id) async {
+    final isarProvider = IsarDb();
+    final db = await isarProvider.db;
+    db.alarmProfileModels.delete(id);
   }
 
   static Future<AlarmModel> getTriggeredAlarm(String time) async {

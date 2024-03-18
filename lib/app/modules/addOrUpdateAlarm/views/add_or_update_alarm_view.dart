@@ -40,6 +40,7 @@ class AddOrUpdateAlarmView extends GetView<AddOrUpdateAlarmController> {
   ThemeController themeController = Get.find<ThemeController>();
   InputTimeController inputTimeController = Get.put(InputTimeController());
   SettingsController settingsController = Get.find<SettingsController>();
+
   @override
   Widget build(BuildContext context) {
     var width = Get.width;
@@ -99,6 +100,7 @@ class AddOrUpdateAlarmView extends GetView<AddOrUpdateAlarmController> {
                         } else {
                           controller.offsetDetails.value = {};
                         }
+
                         AlarmModel alarmRecord = AlarmModel(
                           deleteAfterGoesOff:
                               controller.deleteAfterGoesOff.value,
@@ -165,6 +167,7 @@ class AddOrUpdateAlarmView extends GetView<AddOrUpdateAlarmController> {
                           numberOfSteps: controller.numberOfSteps.value,
                           ringtoneName: controller.customRingtoneName.value,
                           isTimer: false,
+                          profile: controller.currentProfileId.value,
                         );
 
                         // Adding offset details to the database if

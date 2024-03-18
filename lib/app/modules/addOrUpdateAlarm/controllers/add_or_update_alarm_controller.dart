@@ -39,6 +39,7 @@ class AddOrUpdateAlarmController extends GetxController {
   final isSharedAlarmEnabled = false.obs;
   late final isWeatherEnabled = false.obs;
   final weatherApiKeyExists = false.obs;
+
   final isShakeEnabled = false.obs;
   final timeToAlarm = ''.obs;
   final shakeTimes = 0.obs;
@@ -84,12 +85,14 @@ class AddOrUpdateAlarmController extends GetxController {
   final noteController = TextEditingController();
   final RxString note = ''.obs;
   final deleteAfterGoesOff = false.obs;
-
   final RxBool showMotivationalQuote = false.obs;
   final RxInt gradient = 0.obs;
   final RxDouble selectedGradientDouble = 0.0.obs;
   final RxDouble volMin = 0.0.obs;
   final RxDouble volMax = 10.0.obs;
+
+  final _secureStorageProvider = SecureStorageProvider();
+  final currentProfileId = 0.obs;
 
   final RxInt hours = 0.obs, minutes = 0.obs, meridiemIndex = 0.obs;
   final List<RxString> meridiem = ['AM'.obs, 'PM'.obs];
@@ -147,6 +150,12 @@ class AddOrUpdateAlarmController extends GetxController {
       isWeekdaysSelected.value = false;
       isDailySelected.value = false;
     }
+  }
+
+  Future<int> setCurrentProfile() async {
+    String? id =
+        await _secureStorageProvider.retrieveCurrentAlarmProfile() ?? "0";
+    return int.parse(id);
   }
 
   checkOverlayPermissionAndNavigate() async {
@@ -650,6 +659,8 @@ class AddOrUpdateAlarmController extends GetxController {
   void onInit() async {
     super.onInit();
 
+    currentProfileId.value = await setCurrentProfile();
+
     userModel.value = homeController.userModel.value;
     if (userModel.value != null) {
       ownerId = userModel.value!.id;
@@ -1002,6 +1013,7 @@ class AddOrUpdateAlarmController extends GetxController {
       note: note.value,
       showMotivationalQuote: showMotivationalQuote.value,
       isTimer: false,
+      profile: 999,
     );
   }
 

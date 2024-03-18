@@ -1,6 +1,5 @@
 import 'package:isar/isar.dart';
 import 'package:ultimate_alarm_clock/app/utils/audio_utils.dart';
-
 part 'ringtone_model.g.dart';
 
 @collection

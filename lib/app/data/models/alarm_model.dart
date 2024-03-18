@@ -10,7 +10,6 @@ part 'alarm_model.g.dart';
 @collection
 class AlarmModel {
   Id isarId = Isar.autoIncrement;
-
   String? firestoreId;
   late String alarmTime;
   late String alarmID;
@@ -51,6 +50,7 @@ class AlarmModel {
   late bool isTimer;
   late double volMax;
   late double volMin;
+  late int profile;
 
   @ignore
   Map? offsetDetails;
@@ -96,6 +96,7 @@ class AlarmModel {
     required this.isTimer,
     required this.volMax,
     required this.volMin,
+    required this.profile
   });
 
   AlarmModel.fromDocumentSnapshot({
@@ -157,6 +158,7 @@ class AlarmModel {
     isTimer = documentSnapshot['isTimer'];
     volMax = documentSnapshot['volMax'];
     volMin = documentSnapshot['volMin'];
+    profile = documentSnapshot['profile'];
   }
 
   AlarmModel.fromMap(Map<String, dynamic> alarmData) {
@@ -203,6 +205,7 @@ class AlarmModel {
     isTimer = alarmData['isTimer'];
     volMin = alarmData['volMin'];
     volMax = alarmData['volMax'];
+    profile =alarmData['profile'];
   }
 
   AlarmModel.fromJson(String alarmData, UserModel? user) {
@@ -254,6 +257,7 @@ class AlarmModel {
       'isTimer': alarmRecord.isTimer,
       'volMin': alarmRecord.volMin,
       'volMax': alarmRecord.volMax,
+      'profile': alarmRecord.profile
     };
 
     if (alarmRecord.isSharedAlarmEnabled) {

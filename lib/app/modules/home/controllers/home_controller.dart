@@ -25,7 +25,6 @@ class Pair<T, U> {
 }
 
 class HomeController extends GetxController {
-
   MethodChannel alarmChannel = const MethodChannel('ulticlock');
   Stream<QuerySnapshot>? firestoreStreamAlarms;
   Stream<QuerySnapshot>? sharedAlarmsStream;
@@ -35,6 +34,7 @@ class HomeController extends GetxController {
   List<AlarmModel> latestIsarAlarms = [];
   List<AlarmModel> latestSharedAlarms = [];
   final alarmTime = 'No upcoming alarms!'.obs;
+  final RxInt profileId = 0.obs;
   bool refreshTimer = false;
   bool isEmpty = true;
   Timer? _delayTimer;
@@ -66,6 +66,11 @@ class HomeController extends GetxController {
   final RxDouble selecteddurationDouble = 0.0.obs;
 
   ThemeController themeController = Get.find<ThemeController>();
+
+  switchProfile(int id) {
+    profileId.value = id;
+
+  }
 
   loginWithGoogle() async {
     // Logging in again to ensure right details if User has linked account
@@ -540,7 +545,7 @@ class HomeController extends GetxController {
     Get.snackbar(
       'Alarm deleted',
       'The alarm has been deleted.',
-      duration: Duration(seconds:  duration.toInt()),
+      duration: Duration(seconds: duration.toInt()),
       snackPosition: SnackPosition.BOTTOM,
       margin: const EdgeInsets.symmetric(
         horizontal: 10,

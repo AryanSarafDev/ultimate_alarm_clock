@@ -390,6 +390,7 @@ class Utils {
       note: '',
       showMotivationalQuote: false,
       isTimer: false,
+      profile: 0,
     );
   }
 
