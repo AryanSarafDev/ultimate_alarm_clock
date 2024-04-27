@@ -287,7 +287,7 @@ class Utils {
     } else if (selectedDays.isEmpty) {
       return 'Never'.tr;
     } else {
-      return selectedDays.join(', ');
+      return selectedDays.join(',');
     }
   }
 

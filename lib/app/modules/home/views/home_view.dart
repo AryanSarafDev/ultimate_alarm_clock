@@ -586,7 +586,7 @@ class HomeView extends GetView<HomeController> {
                                                         children: [
                                                           // All alarm select button
                                                           ToggleButton(
-                                                              controller:
+                                                            controller:
                                                                 controller,
                                                             isSelected: controller
                                                                 .isAllAlarmsSelected,
@@ -760,6 +760,19 @@ class HomeView extends GetView<HomeController> {
                                         final AlarmModel alarm = alarms[index];
                                         final repeatDays =
                                             Utils.getRepeatDays(alarm.days);
+                                        List daysSelected =
+                                            repeatDays.split(',');
+
+                                        List days = [
+                                          'S',
+                                          'M',
+                                          'T',
+                                          'W',
+                                          'T',
+                                          'F',
+                                          'S'
+                                        ];
+
                                         // Main card
                                         return Dismissible(
                                           onDismissed: (direction) async {
@@ -939,20 +952,36 @@ class HomeView extends GetView<HomeController> {
                                                                       child:
                                                                           Row(
                                                                         children: [
-                                                                          Text(
-                                                                            repeatDays.replaceAll(
-                                                                              'Never'.tr,
-                                                                              'One Time'.tr,
-                                                                            ),
-                                                                            style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                                                                                  fontWeight: FontWeight.w500,
-                                                                                  color: alarm.isEnabled == true
-                                                                                      ? kprimaryColor
-                                                                                      : themeController.isLightMode.value
-                                                                                          ? kLightPrimaryDisabledTextColor
-                                                                                          : kprimaryDisabledTextColor,
-                                                                                ),
-                                                                          ),
+                                                                          if (repeatDays ==
+                                                                              'Never')
+                                                                            Text(
+                                                                              repeatDays.replaceAll(
+                                                                                'Never'.tr,
+                                                                                'One Time'.tr,
+                                                                              ),
+                                                                              style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                                                                                    fontWeight: FontWeight.w500,
+                                                                                    color: alarm.isEnabled == true
+                                                                                        ? kprimaryColor
+                                                                                        : themeController.isLightMode.value
+                                                                                            ? kLightPrimaryDisabledTextColor
+                                                                                            : kprimaryDisabledTextColor,
+                                                                                  ),
+                                                                            )
+                                                                          else
+                                                                            for (int i = 0;
+                                                                                i < days.length;
+                                                                                i++)
+                                                                              Text(
+                                                                                  " ${days[i]} ",
+                                                                                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                                                                                        fontWeight: FontWeight.w500,
+                                                                                        color: alarm.isEnabled == true && daysSelected.contains(days[i])
+                                                                                            ? kprimaryColor
+                                                                                            : themeController.isLightMode.value
+                                                                                                ? kLightPrimaryDisabledTextColor
+                                                                                                : kprimaryDisabledTextColor,
+                                                                                      )),
                                                                           if (alarm
                                                                               .label
                                                                               .isNotEmpty)
@@ -1411,15 +1440,14 @@ class HomeView extends GetView<HomeController> {
                     Get.back(result: false);
                   },
                   style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all(
-                      kprimaryTextColor.withOpacity(0.5),
-                    )),
-                    child: Text(
-                      'Cancel'.tr,
-                      style: Theme.of(context).textTheme.displaySmall!,
-                    ),
+                      backgroundColor: MaterialStateProperty.all(
+                    kprimaryTextColor.withOpacity(0.5),
+                  )),
+                  child: Text(
+                    'Cancel'.tr,
+                    style: Theme.of(context).textTheme.displaySmall!,
                   ),
-
+                ),
                 TextButton(
                   onPressed: () {
                     Get.back(result: true); // User confirmed

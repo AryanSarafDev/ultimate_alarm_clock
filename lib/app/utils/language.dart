@@ -211,8 +211,8 @@ class AppTranslations extends Translations {
           'Everyday': 'Everyday',
           'Weekdays': 'Weekdays',
           'Weekends': 'Weekends',
-          'Mon': 'Mon', 'Tue': 'Tue', 'Wed': 'Wed', 'Thur': 'Thur',
-          'Fri': 'Fri', 'Sat': 'Sat', 'Sun': 'Sun',
+          'Mon': 'M', 'Tue': 'T', 'Wed': 'W', 'Thur': 'T',
+          'Fri': 'F', 'Sat': 'S', 'Sun': 'S',
           //OpenWeatherMap
           'onenweathermap_title1.1': 'Steps to get ',
           'onenweathermap_title1.2': 'OpenWeatherMap API',

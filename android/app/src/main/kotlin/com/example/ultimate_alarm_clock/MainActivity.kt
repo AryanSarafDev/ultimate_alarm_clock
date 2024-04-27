@@ -22,6 +22,11 @@ import android.view.WindowManager
 import android.media.Ringtone
 import android.media.RingtoneManager
 import android.net.Uri
+import android.app.AlertDialog
+import android.widget.Button
+import android.os.Build
+import java.util.Locale
+import android.provider.Settings
 
 class MainActivity : FlutterActivity() {
 
@@ -31,7 +36,56 @@ class MainActivity : FlutterActivity() {
         const val EXTRA_KEY = "alarmRing"
         val alarmConfig = hashMapOf("shouldAlarmRing" to false, "alarmIgnore" to false)
         private var ringtone: Ringtone? = null
+        const val OVERLAY_REQUEST_CODE = 123
     }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        // Your existing onCreate code goes here...
+
+        val dialogBuilder = AlertDialog.Builder(this)
+        val inflater = this.layoutInflater
+        val dialogView = inflater.inflate(R.layout.custom_dialog, null)
+        dialogBuilder.setView(dialogView)
+
+        val yesButton = dialogView.findViewById<Button>(R.id.yesButton)
+        val noButton = dialogView.findViewById<Button>(R.id.noButton)
+
+        val alertDialog = dialogBuilder.create()
+
+        yesButton.setOnClickListener {
+            alertDialog.dismiss()
+            if ("xiaomi".equals(Build.MANUFACTURER.toLowerCase(Locale.ROOT))) {
+                val intent = Intent("miui.intent.action.APP_PERM_EDITOR")
+                intent.setClassName(
+                    "com.miui.securitycenter",
+                    "com.miui.permcenter.permissions.PermissionsEditorActivity"
+                )
+                intent.putExtra("extra_pkgname", packageName)
+                AlertDialog.Builder(this)
+                    .setTitle("Please Enable the additional permissions")
+                    .setMessage("You will not receive notifications while the app is in the background if you disable these permissions")
+                    .setPositiveButton("Go to Settings") { dialog, which ->
+                        startActivity(intent)
+                    }
+                    .setIcon(android.R.drawable.ic_dialog_info)
+                    .setCancelable(false)
+                    .show()
+            } else {
+                val overlaySettings = Intent(
+                    Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:$packageName")
+                )
+                startActivityForResult(overlaySettings, OVERLAY_REQUEST_CODE)
+            }
+        }
+
+        noButton.setOnClickListener {
+            alertDialog.dismiss()
+        }
+
+        alertDialog.show()
+    }
+
 
 
 
