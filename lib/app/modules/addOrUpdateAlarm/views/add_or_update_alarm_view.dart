@@ -100,6 +100,7 @@ class AddOrUpdateAlarmView extends GetView<AddOrUpdateAlarmController> {
                         } else {
                           controller.offsetDetails.value = {};
                         }
+                        int currentProfile = await controller.getCurrentProfile();
 
                         AlarmModel alarmRecord = AlarmModel(
                           deleteAfterGoesOff:
@@ -167,7 +168,7 @@ class AddOrUpdateAlarmView extends GetView<AddOrUpdateAlarmController> {
                           numberOfSteps: controller.numberOfSteps.value,
                           ringtoneName: controller.customRingtoneName.value,
                           isTimer: false,
-                          profile: controller.currentProfileId.value,
+                          profile: currentProfile,
                         );
 
                         // Adding offset details to the database if

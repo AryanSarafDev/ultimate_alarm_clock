@@ -23,7 +23,7 @@ class IsarDb {
     final dir = await getApplicationDocumentsDirectory();
     if (Isar.instanceNames.isEmpty) {
       return await Isar.open(
-        [AlarmModelSchema, RingtoneModelSchema],
+        [AlarmProfileModelSchema,AlarmModelSchema, RingtoneModelSchema],
         directory: dir.path,
         inspector: true,
       );
@@ -52,12 +52,26 @@ class IsarDb {
     return profileId[0].isarId;
   }
 
+  static getProfiles() async* {
+    final isarProvider = IsarDb();
+    final db = await isarProvider.db;
+    try {
+      yield* db.alarmProfileModels.where().watch(fireImmediately: true);
+    } catch (e) {
+      debugPrint(e.toString());
+      throw e;
+    }
+  }
+
   // add a new alarm profile
   static addProfile(String profileName) async {
     final newUser = AlarmProfileModel(profileName: profileName);
     final isarProvider = IsarDb();
     final db = await isarProvider.db;
-    db.alarmProfileModels.put(newUser);
+
+    await db.writeTxn(() async {
+      await db.alarmProfileModels.put(newUser);
+    });
   }
 
   // get list of alarm profiles available

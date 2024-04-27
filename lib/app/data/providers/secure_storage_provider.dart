@@ -49,18 +49,6 @@ class SecureStorageProvider {
     return await _secureStorage.read(key: apiKey);
   }
   // Store current selected alarm profile
-  Future<void> storeCurrentAlarmProfile(int id) async {
-    const String profile = 'currentProfile';
-    await _secureStorage.write(
-      key: profile,
-      value: id.toString(),
-    );
-  }
-  // retrieve current alarm profile
-  Future<String?> retrieveCurrentAlarmProfile() async {
-    const String key = 'currentProfile';
-    return await _secureStorage.read(key: key);
-  }
 
   // Store the weather state in the flutter secure storage
   Future<void> storeWeatherState(String weatherState) async {
@@ -94,6 +82,7 @@ class SecureStorageProvider {
   Future<bool> readSortedAlarmListValue({required String key}) async {
     return await _secureStorage.read(key: key) == 'true';
   }
+
 
   Future<void> writeSortedAlarmListValue({
     required String key,

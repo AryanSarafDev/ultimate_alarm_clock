@@ -21,12 +21,14 @@ import 'package:ultimate_alarm_clock/app/utils/audio_utils.dart';
 import 'package:ultimate_alarm_clock/app/utils/utils.dart';
 import 'package:ultimate_alarm_clock/app/utils/constants.dart';
 import 'package:uuid/uuid.dart';
+import '../../../data/providers/get_storage_provider.dart';
 import '../../settings/controllers/settings_controller.dart';
 
 class AddOrUpdateAlarmController extends GetxController {
   final labelController = TextEditingController();
   ThemeController themeController = Get.find<ThemeController>();
   SettingsController settingsController = Get.find<SettingsController>();
+  final storage = Get.find<GetStorageProvider>();
 
   final Rx<UserModel?> userModel = Rx<UserModel?>(null);
   var alarmID = const Uuid().v4();
@@ -92,7 +94,7 @@ class AddOrUpdateAlarmController extends GetxController {
   final RxDouble volMax = 10.0.obs;
 
   final _secureStorageProvider = SecureStorageProvider();
-  final currentProfileId = 0.obs;
+  final currentProfileId = 1.obs;
 
   final RxInt hours = 0.obs, minutes = 0.obs, meridiemIndex = 0.obs;
   final List<RxString> meridiem = ['AM'.obs, 'PM'.obs];
@@ -152,10 +154,9 @@ class AddOrUpdateAlarmController extends GetxController {
     }
   }
 
-  Future<int> setCurrentProfile() async {
-    String? id =
-        await _secureStorageProvider.retrieveCurrentAlarmProfile() ?? "0";
-    return int.parse(id);
+  Future<int> getCurrentProfile() async {
+    int id = await storage.readCurrentProfile();
+    return id;
   }
 
   checkOverlayPermissionAndNavigate() async {
@@ -659,7 +660,7 @@ class AddOrUpdateAlarmController extends GetxController {
   void onInit() async {
     super.onInit();
 
-    currentProfileId.value = await setCurrentProfile();
+    currentProfileId.value = await getCurrentProfile();
 
     userModel.value = homeController.userModel.value;
     if (userModel.value != null) {

@@ -17,6 +17,9 @@ import 'package:ultimate_alarm_clock/app/modules/settings/controllers/theme_cont
 import 'package:ultimate_alarm_clock/app/utils/constants.dart';
 import 'package:ultimate_alarm_clock/app/utils/utils.dart';
 
+import '../../../data/models/alarm_profile_model.dart';
+import '../../../data/providers/get_storage_provider.dart';
+
 class Pair<T, U> {
   final T first;
   final U second;
@@ -29,12 +32,13 @@ class HomeController extends GetxController {
   Stream<QuerySnapshot>? firestoreStreamAlarms;
   Stream<QuerySnapshot>? sharedAlarmsStream;
   Stream? isarStreamAlarms;
-  Stream? streamAlarms;
+  Stream? isarStreamProfiles;
   List<AlarmModel> latestFirestoreAlarms = [];
   List<AlarmModel> latestIsarAlarms = [];
   List<AlarmModel> latestSharedAlarms = [];
   final alarmTime = 'No upcoming alarms!'.obs;
-  final RxInt profileId = 0.obs;
+  final latestProfiles = [].obs;
+  final RxInt profileId = 1.obs;
   bool refreshTimer = false;
   bool isEmpty = true;
   Timer? _delayTimer;
@@ -49,6 +53,9 @@ class HomeController extends GetxController {
   final floatingButtonKeyLoggedOut = GlobalKey<ExpandableFabState>();
 
   final alarmIdController = TextEditingController();
+
+  final alarmprofileaddController = TextEditingController();
+  final storage = Get.find<GetStorageProvider>();
 
   ScrollController scrollController = ScrollController();
   RxDouble scalingFactor = 1.0.obs;
@@ -66,10 +73,18 @@ class HomeController extends GetxController {
   final RxDouble selecteddurationDouble = 0.0.obs;
 
   ThemeController themeController = Get.find<ThemeController>();
+  final _secureStorageProvider = SecureStorageProvider();
 
   switchProfile(int id) {
     profileId.value = id;
+    storage.writeCurrentProfile(id);
+    print(profileId.value);
 
+  }
+
+  addProfile() async {
+    await IsarDb.addProfile(alarmprofileaddController.text);
+    Get.snackbar("Profile", "Profile ${alarmprofileaddController.text} added!");
   }
 
   loginWithGoogle() async {
@@ -108,6 +123,8 @@ class HomeController extends GetxController {
       }
     }
   }
+
+
 
   initStream(UserModel? user) async {
     firestoreStreamAlarms = FirestoreDb.getAlarms(userModel.value);
@@ -221,9 +238,9 @@ class HomeController extends GetxController {
   @override
   void onInit() async {
     super.onInit();
-
+    profileId.value = await getCurrentProfile();
+    isarStreamProfiles = IsarDb.getProfiles();
     if (!isUserSignedIn.value) await loginWithGoogle();
-
     isSortedAlarmListEnabled.value = await SecureStorageProvider()
         .readSortedAlarmListValue(key: 'sorted_alarm_list');
 
@@ -245,6 +262,23 @@ class HomeController extends GetxController {
         showQuotePopup(quote);
       }
     }
+  }
+
+  Future<int> getCurrentProfile() async {
+    int id = await storage.readCurrentProfile() ?? 1;
+    return id;
+  }
+
+  profileSwitchAlarmUpdate() async {
+    List<AlarmModel> alarms = latestIsarAlarms;
+    AlarmModel updateAlarm;
+    for (updateAlarm in alarms) {
+      updateAlarm.profile == profileId.value
+        ? updateAlarm.isEnabled = true
+        : updateAlarm.isEnabled = false;
+    IsarDb.updateAlarm(updateAlarm);
+    }
+
   }
 
   refreshUpcomingAlarms() async {

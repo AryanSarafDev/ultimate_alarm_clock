@@ -1,10 +1,13 @@
 // ignore_for_file: lines_longer_than_80_chars
 
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:ultimate_alarm_clock/app/data/models/alarm_model.dart';
+import 'package:ultimate_alarm_clock/app/data/models/alarm_profile_model.dart';
 import 'package:ultimate_alarm_clock/app/data/providers/firestore_provider.dart';
 import 'package:ultimate_alarm_clock/app/data/providers/isar_provider.dart';
 import 'package:ultimate_alarm_clock/app/modules/home/views/toggle_button.dart';
@@ -22,6 +25,7 @@ class HomeView extends GetView<HomeController> {
   HomeView({Key? key}) : super(key: key);
   ThemeController themeController = Get.find<ThemeController>();
   SettingsController settingsController = Get.find<SettingsController>();
+  List coloring = ["FFAFFC41"];
 
   @override
   Widget build(BuildContext context) {
@@ -251,7 +255,7 @@ class HomeView extends GetView<HomeController> {
                         ),
                         onPressed: () {
                           Utils.hapticFeedback();
-                          controller.floatingButtonKey.currentState!.toggle();
+
                           Get.toNamed('/add-update-alarm');
                         },
                         child: Row(
@@ -586,7 +590,7 @@ class HomeView extends GetView<HomeController> {
                                                         children: [
                                                           // All alarm select button
                                                           ToggleButton(
-                                                              controller:
+                                                            controller:
                                                                 controller,
                                                             isSelected: controller
                                                                 .isAllAlarmsSelected,
@@ -676,7 +680,122 @@ class HomeView extends GetView<HomeController> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Text(
+                      "${controller.profileId == 0 ? "Default" : "Profile"}",
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                            fontWeight: FontWeight.w500,
+                            color: kprimaryColor,
+                          ),
+                    ),
+                  ),
+                  StreamBuilder(
+                      stream: controller.isarStreamProfiles,
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          List<AlarmProfileModel> profiles = snapshot.data;
+
+                          print(profiles);
+                          if(profiles.length==0)
+                            {
+                              IsarDb.addProfile("Default");
+                            }
+
+                          return Theme(
+                            data: ThemeData(useMaterial3: true),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: Get.width * 0.85,
+                                  child: SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Row(
+                                        children: List<Widget>.generate(
+                                          profiles.length,
+                                          (int index) {
+                                            return Padding(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: FilterChip(
+                                                color: MaterialStateProperty
+                                                    .all((profiles[index]
+                                                                .isarId) ==
+                                                            (controller
+                                                                .profileId
+                                                                .value)
+                                                        ? kprimaryColor
+                                                        : kprimaryDisabledTextColor),
+                                                label: Text(
+                                                    '${profiles[index].profileName}'),
+                                                selected:
+                                                    (profiles[index].isarId) ==
+                                                        (controller
+                                                            .profileId.value),
+                                                onSelected:
+                                                    (bool selected) async {
+                                                  await controller
+                                                      .switchProfile(
+                                                          profiles[index]
+                                                              .isarId);
+
+                                                  await controller
+                                                      .profileSwitchAlarmUpdate();
+
+                                                  await controller
+                                                      .refreshUpcomingAlarms();
+                                                },
+                                                showCheckmark: false,
+                                              ),
+                                            );
+                                          },
+                                        ).toList(),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(4.0),
+                                  child: IconButton(
+                                    onPressed: () {
+                                      Get.defaultDialog(
+                                          backgroundColor:
+                                              kprimaryBackgroundColor,
+                                          title: 'Add profile',
+                                          content: TextField(
+                                            decoration: InputDecoration(
+                                                fillColor:
+                                                    ksecondaryBackgroundColor,
+                                                filled: true,
+                                                suffixIcon: IconButton(
+                                                  icon: Icon(
+                                                    Icons.check_circle,
+                                                    color: kprimaryColor,
+                                                  ),
+                                                  onPressed: () {
+                                                    controller.addProfile();
+                                                    Get.back();
+                                                  },
+                                                )),
+                                            controller: controller
+                                                .alarmprofileaddController,
+                                          ));
+                                    },
+                                    icon: Icon(Icons.add),
+                                    color: ksecondaryColor,
+                                  ),
+                                )
+                              ],
+                            ),
+                          );
+                        } else {
+                          return CircularProgressIndicator();
+                        }
+                      }),
                   Expanded(
                     child: GlowingOverscrollIndicator(
                       color: themeController.isLightMode.value
@@ -709,8 +828,9 @@ class HomeView extends GetView<HomeController> {
                                   } else {
                                     List<AlarmModel> alarms = snapshot.data;
 
+
                                     alarms = alarms
-                                        .where((alarm) => !alarm.isTimer)
+                                        .where((alarm) => !alarm.isTimer && alarm.profile==controller.profileId.value)
                                         .toList();
                                     controller.refreshTimer = true;
                                     controller.refreshUpcomingAlarms();
@@ -1411,15 +1531,14 @@ class HomeView extends GetView<HomeController> {
                     Get.back(result: false);
                   },
                   style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all(
-                      kprimaryTextColor.withOpacity(0.5),
-                    )),
-                    child: Text(
-                      'Cancel'.tr,
-                      style: Theme.of(context).textTheme.displaySmall!,
-                    ),
+                      backgroundColor: MaterialStateProperty.all(
+                    kprimaryTextColor.withOpacity(0.5),
+                  )),
+                  child: Text(
+                    'Cancel'.tr,
+                    style: Theme.of(context).textTheme.displaySmall!,
                   ),
-
+                ),
                 TextButton(
                   onPressed: () {
                     Get.back(result: true); // User confirmed
@@ -1452,4 +1571,6 @@ class HomeView extends GetView<HomeController> {
     );
     await Future.delayed(const Duration(seconds: 3));
   }
+
+  int hexToInteger(String hex) => int.parse(hex, radix: 16);
 }
